@@ -22,15 +22,16 @@ public class SuroSampler extends AbstractJavaSamplerClient {
      */
     private static final String PARAMETER_LOAD_BALANCER_SERVER = "SuroClient.loadBalancerServer";
 
-    public SampleResult runTest(JavaSamplerContext arg0) {
+    public SampleResult runTest(JavaSamplerContext context) {
         // TODO: do not allocate a new SuroClient for each request
         final Properties clientProperties = new Properties();
-        clientProperties.setProperty(ClientConfig.LB_TYPE, "static");
-        clientProperties.setProperty(ClientConfig.LB_SERVER, PARAMETER_LOAD_BALANCER_SERVER);
+        clientProperties.setProperty( ClientConfig.LB_TYPE, "static" );
+        clientProperties.setProperty( ClientConfig.LB_SERVER, 
+                                      context.getParameter( PARAMETER_LOAD_BALANCER_SERVER ) );
 
         SuroClient client = new SuroClient(clientProperties);
         // TODO: send configurable payload
-        client.send(new Message("routingKey", "testMessage".getBytes()));
+        client.send( new Message("routingKey", "testMessage".getBytes()) );
         client.shutdown();
 
         // create result
