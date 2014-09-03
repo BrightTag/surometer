@@ -2,6 +2,7 @@ package co.signal.surometer;
 
 import java.util.Properties;
 
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
@@ -22,17 +23,38 @@ public class SuroSampler extends AbstractJavaSamplerClient {
      */
     private static final String PARAMETER_LOAD_BALANCER_SERVER = "SuroClient.loadBalancerServer";
 
-    public SampleResult runTest(JavaSamplerContext context) {
-        // TODO: do not allocate a new SuroClient for each request
+    private SuroClient client;
+
+
+    @Override
+    public void setupTest(JavaSamplerContext context) {
+        // setup the SuroClient
         final Properties clientProperties = new Properties();
         clientProperties.setProperty( ClientConfig.LB_TYPE, "static" );
         clientProperties.setProperty( ClientConfig.LB_SERVER, 
                                       context.getParameter( PARAMETER_LOAD_BALANCER_SERVER ) );
+        client = new SuroClient(clientProperties);
+    }
 
-        SuroClient client = new SuroClient(clientProperties);
-        // TODO: send configurable payload
-        client.send( new Message("routingKey", "testMessage".getBytes()) );
+
+    @Override
+    public void teardownTest( JavaSamplerContext context ) {
+        // shutdown the SuroClient
         client.shutdown();
+    }
+
+
+    @Override
+    public Arguments getDefaultParameters() {
+      Arguments defaultParameters = new Arguments();
+      defaultParameters.addArgument( PARAMETER_LOAD_BALANCER_SERVER, "localhost:7101");
+      return defaultParameters;
+    }
+
+
+    public SampleResult runTest(JavaSamplerContext context) {
+        // TODO: send configurable routingKey and payload
+        client.send( new Message("routingKey", "testMessage".getBytes()) );
 
         // create result
         // TODO: create a meaningful result
