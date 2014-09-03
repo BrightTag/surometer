@@ -6,6 +6,7 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.log.Priority;
 
 import com.netflix.suro.ClientConfig;
 import com.netflix.suro.client.SuroClient;
@@ -37,6 +38,23 @@ public class SuroSampler extends AbstractJavaSamplerClient {
      * When the number of messages queued is up to this value, the client will create and send MessageSet.
      */
     private static final String PARAMETER_ASYNC_BATCH_SIZE = "SuroClient.asyncBatchSize";
+    /**
+     * Even the number of messages is less than the above value, the client will send messages in
+     * the queue any way if up to this much time has elaspsed. Time unit is millisecond.
+     */
+    private static final String PARAMETER_ASYNC_TIMEOUT = "SuroClient.asyncTimeout";
+    /**
+     * Can be either file or memory.
+     */
+    private static final String PARAMETER_ASYNC_QUEUE_TYPE = "SuroClient.asyncQueueType";
+    /**
+     * The bound of memory queue. The unit is number of messages.
+     */
+    private static final String PARAMETER_ASYNC_MEMORYQUEUE_CAPACITY = "SuroClient.asyncMessageQueueCapacity";
+    /**
+     * file queue directory path
+     */
+    private static final String PARAMETER_ASYNC_FILEQUEUE_PATH = "SuroClient.asyncFileQueuePath";
 
     private SuroClient client;
 
@@ -52,7 +70,16 @@ public class SuroSampler extends AbstractJavaSamplerClient {
                                       context.getParameter( PARAMETER_CLIENT_TYPE ) );
         clientProperties.setProperty( ClientConfig.ASYNC_BATCH_SIZE, 
                                       context.getParameter( PARAMETER_ASYNC_BATCH_SIZE ) );
+        clientProperties.setProperty( ClientConfig.ASYNC_TIMEOUT, 
+                                      context.getParameter( PARAMETER_ASYNC_TIMEOUT ) );
+        clientProperties.setProperty( ClientConfig.ASYNC_QUEUE_TYPE, 
+                                      context.getParameter( PARAMETER_ASYNC_QUEUE_TYPE ) );
+        clientProperties.setProperty( ClientConfig.ASYNC_MEMORYQUEUE_CAPACITY, 
+                                      context.getParameter( PARAMETER_ASYNC_MEMORYQUEUE_CAPACITY ) );
+        clientProperties.setProperty( ClientConfig.ASYNC_FILEQUEUE_PATH, 
+                                      context.getParameter( PARAMETER_ASYNC_FILEQUEUE_PATH ) );
         client = new SuroClient(clientProperties);
+        getLogger().log( Priority.INFO, "setup SuroClient" );
     }
 
 
@@ -60,6 +87,7 @@ public class SuroSampler extends AbstractJavaSamplerClient {
     public void teardownTest( JavaSamplerContext context ) {
         // shutdown the SuroClient
         client.shutdown();
+        getLogger().log( Priority.INFO, "shutdown SuroClient" );
     }
 
 
@@ -73,6 +101,10 @@ public class SuroSampler extends AbstractJavaSamplerClient {
       defaultParameters.addArgument( PARAMETER_LOAD_BALANCER_SERVER, "localhost:7101");
       defaultParameters.addArgument( PARAMETER_CLIENT_TYPE, "sync");
       defaultParameters.addArgument( PARAMETER_ASYNC_BATCH_SIZE, "200");
+      defaultParameters.addArgument( PARAMETER_ASYNC_TIMEOUT, "5000");
+      defaultParameters.addArgument( PARAMETER_ASYNC_QUEUE_TYPE, "memory");
+      defaultParameters.addArgument( PARAMETER_ASYNC_MEMORYQUEUE_CAPACITY, "10000");
+      defaultParameters.addArgument( PARAMETER_ASYNC_FILEQUEUE_PATH, "/tmp/SuroClient" );
 
       return defaultParameters;
     }
