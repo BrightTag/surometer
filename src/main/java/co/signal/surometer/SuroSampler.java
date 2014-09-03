@@ -33,6 +33,8 @@ public class SuroSampler extends AbstractJavaSamplerClient {
         clientProperties.setProperty( ClientConfig.LB_TYPE, "static" );
         clientProperties.setProperty( ClientConfig.LB_SERVER, 
                                       context.getParameter( PARAMETER_LOAD_BALANCER_SERVER ) );
+        // requests are synchronous to allow SampleResult() to get the timing and response
+        clientProperties.setProperty( ClientConfig.CLIENT_TYPE, "sync" );
         client = new SuroClient(clientProperties);
     }
 
@@ -57,7 +59,7 @@ public class SuroSampler extends AbstractJavaSamplerClient {
         client.send( new Message("routingKey", "testMessage".getBytes()) );
 
         // create result
-        // TODO: create a meaningful result
+        // !!!: I am not aware of any error reporting mechanism for SuroClient.send()
         SampleResult result = new SampleResult();
         result.setSuccessful(true);
         return result;
