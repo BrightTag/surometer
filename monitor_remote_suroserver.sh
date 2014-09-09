@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TMP_FILENAME=/tmp/monitor_remote_suroserver.sh.dat
-GNUPLOT=gnuplot
+GNUPLOT="gnuplot -background gray"
 SLEEP_TIME=0.1
 SURO_HOST=starzia@guestvm.thebrighttag.com
 SURO_FILEQUEUE_PATH=/home/starzia/suroserver/sinkQueue
@@ -10,15 +10,15 @@ KAFKA_LOG_PATH=/mnt/kafka-logs
 plot_setup_commands() {
     echo "set terminal x11"
     echo "set xlabel 'UTC time'"
-    echo "set ylabel 'kB'"
+    echo "set ylabel 'MB'"
     echo "set key out top"
     echo "set xdata time"
     echo "set timefmt '%s'"
     echo "set format x '%H:%M:%S'"
     echo "set xtics rotate by -90"
-    echo "plot '$TMP_FILENAME' using 1:2 with lines title 'Suro KafkaSink files' \
-             , '' using 1:3 with lines linetype 3 title 'Kafka log files' \
-             , '' using 1:4 with lines linetype 4 title 'Suro resident memory' \
+    echo "plot '$TMP_FILENAME' using 1:(\$2/1024) with lines title 'Suro KafkaSink files' \
+             , '' using 1:(\$3/1024) with lines title 'Kafka log files' \
+             , '' using 1:(\$4/1024) with lines title 'Suro resident memory' \
          "
 }
 
