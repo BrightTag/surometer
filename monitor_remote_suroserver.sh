@@ -2,7 +2,7 @@
 
 TMP_FILENAME=/tmp/monitor_remote_suroserver.sh.dat
 GNUPLOT=gnuplot
-SLEEP_TIME=1
+SLEEP_TIME=0.1
 SURO_HOST=starzia@guestvm.thebrighttag.com
 SURO_FILEQUEUE_PATH=/home/starzia/suroserver/sinkQueue
 KAFKA_LOG_PATH=/mnt/kafka-logs
@@ -16,8 +16,10 @@ plot_setup_commands() {
     echo "set timefmt '%s'"
     echo "set format x '%H:%M:%S'"
     echo "set xtics rotate by -90"
-    echo "plot '$TMP_FILENAME' using 1:2 with lines title 'Suro KafkaSink file size', \
-              '' using 1:3 with lines title 'Kafka log size'"
+    echo "plot '$TMP_FILENAME' using 1:2 with lines title 'Suro KafkaSink files' \
+             , '' using 1:3 with lines linetype 3 title 'Kafka log files' \
+             , '' using 1:4 with lines linetype 4 title 'Suro resident memory' \
+         "
 }
 
 #######
@@ -30,8 +32,10 @@ while [ 1 ]; do
     suro_size=\`du -s $SURO_FILEQUEUE_PATH | awk '{printf \"%s\",\$1}' \`
     # get fileQueue size
     kafka_size=\`du -s $KAFKA_LOG_PATH | awk '{printf \"%s\",\$1}' \`
+    # get Suro RSS size
+    suro_rss=\`cat /proc/\$(ps -eaf|grep 'SuroServer'|grep -v 'grep'|awk '{print \$2}')/status |awk '/VmRSS/{print \$2}' \`
     # add this entry to the data set
-    echo \"\$date \$suro_size \$kafka_size\"
+    echo \"\$date \$suro_size \$kafka_size \$suro_rss  \"
     sleep $SLEEP_TIME
 done" > $TMP_FILENAME &
 ssh_pid=$!
