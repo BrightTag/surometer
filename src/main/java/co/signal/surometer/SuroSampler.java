@@ -8,9 +8,19 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.log.Priority;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.netflix.governator.configuration.PropertiesConfigurationProvider;
+import com.netflix.governator.guice.BootstrapBinder;
+import com.netflix.governator.guice.BootstrapModule;
+import com.netflix.governator.guice.LifecycleInjector;
+import com.netflix.governator.lifecycle.LifecycleManager;
 import com.netflix.suro.ClientConfig;
-import com.netflix.suro.client.SuroClient;
+import com.netflix.suro.client.SyncSuroClient;
+import com.netflix.suro.message.Compression;
 import com.netflix.suro.message.Message;
+import com.netflix.suro.message.MessageSetBuilder;
+import com.netflix.suro.thrift.TMessageSet;
 
 /**
  * A {@link org.apache.jmeter.samplers.Sampler Sampler} which produces Suro messages.
@@ -56,12 +66,40 @@ public class SuroSampler extends AbstractJavaSamplerClient {
      */
     private static final String PARAMETER_ASYNC_FILEQUEUE_PATH = "SuroClient.asyncFileQueuePath";
 
-    private SuroClient client;
+    private SyncSuroClient client;
+
+    private ClientConfig config;
+    private Compression compression;
+    
+    private Injector injector;
+
+    private Injector createInjector(final Properties properties) {
+        injector = LifecycleInjector
+                .builder()
+                .withBootstrapModule(
+                    new BootstrapModule() {
+                        public void configure(BootstrapBinder binder) {
+                            binder.bindConfigurationProvider().toInstance(
+                                    new PropertiesConfigurationProvider(properties));
+                        }
+                    }
+                )
+                .withModules(new SuroSamplerModule())
+                .build().createInjector();
+        LifecycleManager manager = injector.getInstance(LifecycleManager.class);
+
+        try {
+            manager.start();
+        } catch (Exception e) {
+            throw new RuntimeException("LifecycleManager cannot start with an exception: " + e.getMessage(), e);
+        }
+        return injector;
+    }
 
 
     @Override
     public void setupTest(JavaSamplerContext context) {
-        // setup the SuroClient
+        // setup the injection engine with parameters from JMeter
         final Properties clientProperties = new Properties();
         clientProperties.setProperty( ClientConfig.LB_TYPE, "static" );
         clientProperties.setProperty( ClientConfig.LB_SERVER, 
@@ -78,15 +116,22 @@ public class SuroSampler extends AbstractJavaSamplerClient {
                                       context.getParameter( PARAMETER_ASYNC_MEMORYQUEUE_CAPACITY ) );
         clientProperties.setProperty( ClientConfig.ASYNC_FILEQUEUE_PATH, 
                                       context.getParameter( PARAMETER_ASYNC_FILEQUEUE_PATH ) );
-        client = new SuroClient(clientProperties);
+        createInjector( clientProperties );
+        
+        // setup the injection engine
+        this.config = injector.getInstance(ClientConfig.class);
+        this.compression = Compression.create(config.getCompression());
+
+        // setup the Suro client
+        client = injector.getInstance(SyncSuroClient.class);
         getLogger().log( Priority.INFO, "setup SuroClient" );
     }
 
 
     @Override
     public void teardownTest( JavaSamplerContext context ) {
-        // shutdown the SuroClient
-        client.shutdown();
+        // shutdown the injector
+        injector.getInstance(LifecycleManager.class).close();
         getLogger().log( Priority.INFO, "shutdown SuroClient" );
     }
 
@@ -111,14 +156,19 @@ public class SuroSampler extends AbstractJavaSamplerClient {
 
 
     public SampleResult runTest(JavaSamplerContext context) {
+        // create message batch
+        Message msg = new Message( context.getParameter(PARAMETER_MSG_ROUTING_KEY),
+                                   context.getParameter(PARAMETER_MSG_PAYLOAD).getBytes() );
+        TMessageSet messageSet = new MessageSetBuilder(config)
+                                  .withMessage( msg.getRoutingKey(), msg.getPayload() )
+                                  .withCompression(compression)
+                                  .build();
         // sent request
-        client.send( new Message( context.getParameter(PARAMETER_MSG_ROUTING_KEY),
-                                  context.getParameter(PARAMETER_MSG_PAYLOAD).getBytes()) );
+        boolean success = client.send( messageSet );
 
         // create result
-        // !!!: I am not aware of any error reporting mechanism for SuroClient.send()
         SampleResult result = new SampleResult();
-        result.setSuccessful(true);
+        result.setSuccessful( success );
         return result;
     }
     

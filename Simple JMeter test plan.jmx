@@ -17,7 +17,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.num_threads">5</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1409753921000</longProp>
         <longProp name="ThreadGroup.end_time">1409753921000</longProp>
@@ -28,7 +28,7 @@
       <hashTree>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
-          <stringProp name="LoopController.loops">1000000</stringProp>
+          <stringProp name="LoopController.loops">200000</stringProp>
         </LoopController>
         <hashTree>
           <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request" enabled="true">
@@ -41,17 +41,17 @@
                 </elementProp>
                 <elementProp name="SuroSampler.MsgPayload" elementType="Argument">
                   <stringProp name="Argument.name">SuroSampler.MsgPayload</stringProp>
-                  <stringProp name="Argument.value">Hello World</stringProp>
+                  <stringProp name="Argument.value">IN CONGRESS, July 4, 1776.  The unanimous Declaration of the thirteen united States of America,  When in the Course of human events, it becomes necessary for one people to dissolve the political bands which have connected them with another, and to assume among the powers of the earth, the separate and equal station to which the Laws of Nature and of Nature&apos;s God entitle them, a decent respect to the opinions of mankind requires that they should declare the causes which impel them to the separation.  We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.--That to secure these rights, Governments are instituted among Men, deriving their just powers from the consent of the governed, --That whenever any Form of Government becomes destructive of these ends, it is the Right of the People to alter or to abolish it, and to institute new Government, laying it... END</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
                 <elementProp name="SuroClient.loadBalancerServer" elementType="Argument">
                   <stringProp name="Argument.name">SuroClient.loadBalancerServer</stringProp>
-                  <stringProp name="Argument.value">guestvm:7101</stringProp>
+                  <stringProp name="Argument.value">guestvm.thebrighttag.com:7101</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
                 <elementProp name="SuroClient.clientType" elementType="Argument">
                   <stringProp name="Argument.name">SuroClient.clientType</stringProp>
-                  <stringProp name="Argument.value">async</stringProp>
+                  <stringProp name="Argument.value">sync</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
                 <elementProp name="SuroClient.asyncBatchSize" elementType="Argument">
