@@ -1,5 +1,22 @@
 # surometer - Suro JMeter Extension
 
+## License
+
+Copyright 2014 Signal.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
 ## Install
 
 Build the extension:
@@ -21,12 +38,3 @@ class name. The following properties are required, but they have sensible defaul
 * **SuroSampler.MsgPayload** Message payload.
 
 * **SuroClient.loadBalancerServer** Parameter for setting the Suro servers; it should be comma separated list of $hostname:$port".
-* **SuroClient.clientType** Parameter for making requests either synchronous or asynchronous; should be "sync" or "async".  Note that "async" mode implies that the sampler will queue the request in the sampler thread and return immediately.  For Signal's use cases, "sync" is the best choice because our deployments host a Suro Server on each VM, and we expect that service to always be available.  We expect any queueing to happen in the Suro Server, outside of the JMeter load generator.
-
-The following only apply if clientType = "async".
-
-* **SuroClient.asyncBatchSize** When the number of messages queued is up to this value, the client will create and send MessageSet.
-* **SuroClient.asyncTimeout** Even the number of messages is less than the above value, the client will send messages in the queue any way if up to this much time has elaspsed. Time unit is millisecond.
-* **SuroClient.asyncQueueType** Can be either file or memory.
-* **SuroClient.asyncMessageQueueCapacity** The bound of memory queue. The unit is number of messages.
-* **SuroClient.asyncFileQueuePath** file queue directory path
