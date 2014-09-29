@@ -41,6 +41,7 @@ public class SuroSampler extends AbstractJavaSamplerClient {
      * Parameter for setting the Suro servers; it should be comma separated list of $hostname:$port".
      */
     private static final String PARAMETER_CLIENT_TYPE = "SuroClient.clientType";
+    private static final String PARAMETER_MSG_COUNT = "SuroSampler.MsgCount";
 
     private SyncSuroClient syncClient;
     private SuroClient asyncClient;
@@ -111,6 +112,7 @@ public class SuroSampler extends AbstractJavaSamplerClient {
 
       defaultParameters.addArgument( PARAMETER_LOAD_BALANCER_SERVER, "localhost:7101");
       defaultParameters.addArgument( PARAMETER_CLIENT_TYPE, "sync");
+      defaultParameters.addArgument( PARAMETER_MSG_COUNT, "1");
 
       return defaultParameters;
     }
@@ -123,10 +125,12 @@ public class SuroSampler extends AbstractJavaSamplerClient {
         // create message batch
         Message msg = new Message( context.getParameter(PARAMETER_MSG_ROUTING_KEY),
                                    context.getParameter(PARAMETER_MSG_PAYLOAD).getBytes() );
-        TMessageSet messageSet = new MessageSetBuilder(config)
-                                  .withMessage( msg.getRoutingKey(), msg.getPayload() )
-                                  .withCompression(compression)
-                                  .build();
+        MessageSetBuilder builder = new MessageSetBuilder(config);
+        for( int i=0; i<Long.parseLong(context.getParameter(PARAMETER_MSG_COUNT)); i++ ){
+            builder.withMessage( msg.getRoutingKey(), msg.getPayload() );
+        }
+        TMessageSet messageSet = builder.withCompression(compression).build();
+
         // sent request
         if( context.getParameter( PARAMETER_CLIENT_TYPE ).equals("sync")){
             // send synchronously
