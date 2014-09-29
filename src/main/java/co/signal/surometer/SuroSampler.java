@@ -8,7 +8,6 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.log.Priority;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.netflix.governator.configuration.PropertiesConfigurationProvider;
 import com.netflix.governator.guice.BootstrapBinder;
@@ -16,6 +15,7 @@ import com.netflix.governator.guice.BootstrapModule;
 import com.netflix.governator.guice.LifecycleInjector;
 import com.netflix.governator.lifecycle.LifecycleManager;
 import com.netflix.suro.ClientConfig;
+import com.netflix.suro.client.SuroClient;
 import com.netflix.suro.client.SyncSuroClient;
 import com.netflix.suro.message.Compression;
 import com.netflix.suro.message.Message;
@@ -37,8 +37,13 @@ public class SuroSampler extends AbstractJavaSamplerClient {
      * Parameter for setting the Suro servers; it should be comma separated list of $hostname:$port".
      */
     private static final String PARAMETER_LOAD_BALANCER_SERVER = "SuroClient.loadBalancerServer";
+    /**
+     * Parameter for setting the Suro servers; it should be comma separated list of $hostname:$port".
+     */
+    private static final String PARAMETER_CLIENT_TYPE = "SuroClient.clientType";
 
-    private SyncSuroClient client;
+    private SyncSuroClient syncClient;
+    private SuroClient asyncClient;
 
     private ClientConfig config;
     private Compression compression;
@@ -76,15 +81,15 @@ public class SuroSampler extends AbstractJavaSamplerClient {
         clientProperties.setProperty( ClientConfig.LB_TYPE, "static" );
         clientProperties.setProperty( ClientConfig.LB_SERVER, 
                                       context.getParameter( PARAMETER_LOAD_BALANCER_SERVER ) );
-        clientProperties.setProperty( ClientConfig.CLIENT_TYPE, "sync" );
         createInjector( clientProperties );
         
-        // setup the injection engine
+        // setup the injection engin
         this.config = injector.getInstance(ClientConfig.class);
         this.compression = Compression.create(config.getCompression());
 
         // setup the Suro client
-        client = injector.getInstance(SyncSuroClient.class);
+        syncClient = injector.getInstance(SyncSuroClient.class);
+        asyncClient = new SuroClient( clientProperties );
         getLogger().log( Priority.DEBUG, "setup SuroClient" );
     }
 
@@ -105,12 +110,16 @@ public class SuroSampler extends AbstractJavaSamplerClient {
       defaultParameters.addArgument( PARAMETER_MSG_PAYLOAD, "Hello World");
 
       defaultParameters.addArgument( PARAMETER_LOAD_BALANCER_SERVER, "localhost:7101");
+      defaultParameters.addArgument( PARAMETER_CLIENT_TYPE, "sync");
 
       return defaultParameters;
     }
 
 
     public SampleResult runTest(JavaSamplerContext context) {
+        // create result
+        SampleResult result = new SampleResult();
+
         // create message batch
         Message msg = new Message( context.getParameter(PARAMETER_MSG_ROUTING_KEY),
                                    context.getParameter(PARAMETER_MSG_PAYLOAD).getBytes() );
@@ -119,12 +128,18 @@ public class SuroSampler extends AbstractJavaSamplerClient {
                                   .withCompression(compression)
                                   .build();
         // sent request
-        boolean success = client.send( messageSet );
-
-        // create result
-        SampleResult result = new SampleResult();
-        result.setSuccessful( success );
+        if( context.getParameter( PARAMETER_CLIENT_TYPE ).equals("sync")){
+            // send synchronously
+            boolean success = syncClient.send( messageSet );
+            // set result status
+            result.setSuccessful( success );
+        }else{
+            // send asynchronously
+            asyncClient.send( msg );
+        }
         return result;
+
+
     }
     
 

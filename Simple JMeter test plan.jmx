@@ -17,7 +17,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">5</stringProp>
+        <stringProp name="ThreadGroup.num_threads">30</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1409753921000</longProp>
         <longProp name="ThreadGroup.end_time">1409753921000</longProp>
@@ -28,7 +28,7 @@
       <hashTree>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
-          <stringProp name="LoopController.loops">200000</stringProp>
+          <stringProp name="LoopController.loops">10000</stringProp>
         </LoopController>
         <hashTree>
           <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request" enabled="true">
@@ -51,32 +51,7 @@
                 </elementProp>
                 <elementProp name="SuroClient.clientType" elementType="Argument">
                   <stringProp name="Argument.name">SuroClient.clientType</stringProp>
-                  <stringProp name="Argument.value">sync</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="SuroClient.asyncBatchSize" elementType="Argument">
-                  <stringProp name="Argument.name">SuroClient.asyncBatchSize</stringProp>
-                  <stringProp name="Argument.value">200</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="SuroClient.asyncTimeout" elementType="Argument">
-                  <stringProp name="Argument.name">SuroClient.asyncTimeout</stringProp>
-                  <stringProp name="Argument.value">5000</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="SuroClient.asyncQueueType" elementType="Argument">
-                  <stringProp name="Argument.name">SuroClient.asyncQueueType</stringProp>
-                  <stringProp name="Argument.value">file</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="SuroClient.asyncMessageQueueCapacity" elementType="Argument">
-                  <stringProp name="Argument.name">SuroClient.asyncMessageQueueCapacity</stringProp>
-                  <stringProp name="Argument.value">10000</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="SuroClient.asyncFileQueuePath" elementType="Argument">
-                  <stringProp name="Argument.name">SuroClient.asyncFileQueuePath</stringProp>
-                  <stringProp name="Argument.value">/tmp/SuroClient</stringProp>
+                  <stringProp name="Argument.value">async</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
