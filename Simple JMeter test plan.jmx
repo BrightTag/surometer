@@ -17,7 +17,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">30</stringProp>
+        <stringProp name="ThreadGroup.num_threads">10</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1409753921000</longProp>
         <longProp name="ThreadGroup.end_time">1409753921000</longProp>
@@ -28,7 +28,7 @@
       <hashTree>
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">true</boolProp>
-          <stringProp name="LoopController.loops">10000</stringProp>
+          <stringProp name="LoopController.loops">1000</stringProp>
         </LoopController>
         <hashTree>
           <JavaSampler guiclass="JavaTestSamplerGui" testclass="JavaSampler" testname="Java Request" enabled="true">
@@ -51,7 +51,12 @@
                 </elementProp>
                 <elementProp name="SuroClient.clientType" elementType="Argument">
                   <stringProp name="Argument.name">SuroClient.clientType</stringProp>
-                  <stringProp name="Argument.value">async</stringProp>
+                  <stringProp name="Argument.value">sync</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+                <elementProp name="SuroSampler.MsgCount" elementType="Argument">
+                  <stringProp name="Argument.name">SuroSampler.MsgCount</stringProp>
+                  <stringProp name="Argument.value">100</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>

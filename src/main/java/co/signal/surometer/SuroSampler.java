@@ -97,6 +97,7 @@ public class SuroSampler extends AbstractJavaSamplerClient {
 
     @Override
     public void teardownTest( JavaSamplerContext context ) {
+        asyncClient.shutdown();
         // shutdown the injector
         injector.getInstance(LifecycleManager.class).close();
         getLogger().log( Priority.DEBUG, "shutdown SuroClient" );
