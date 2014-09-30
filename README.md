@@ -36,5 +36,7 @@ class name. The following properties are required, but they have sensible defaul
 
 * **SuroSampler.MsgRoutingKey** Suro routing key for this particular message.  This determines to what sink the Suro server sends the message.
 * **SuroSampler.MsgPayload** Message payload.
+* **SuroSampler.MsgCount** Default is 1.  This number of duplicates of the message are sent each time this sampler runs.  This is useful for generating a *lot* of load.
 
 * **SuroClient.loadBalancerServer** Parameter for setting the Suro servers; it should be comma separated list of $hostname:$port".
+* **SuroClient.clientType** "sync" or "async".  "sync" mode is recommended because it will actually report errors.
