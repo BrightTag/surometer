@@ -10,4 +10,4 @@ jmeter_pid=$(ps -ef|grep ApacheJMeter|awk '/java/{print $2}')
 kill $jmeter_pid
 
 # launch jmeter again
-/Applications/apache-jmeter-2.11/bin/jmeter &
+/Applications/apache-jmeter-2.11/bin/jmeter -t "Simple JMeter test plan.jmx" &
