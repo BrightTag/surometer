@@ -127,12 +127,16 @@ public class SuroSampler extends AbstractJavaSamplerClient {
         Message msg = new Message( context.getParameter(PARAMETER_MSG_ROUTING_KEY),
                                    context.getParameter(PARAMETER_MSG_PAYLOAD).getBytes() );
         MessageSetBuilder builder = new MessageSetBuilder(config);
-        for( int i=0; i<Long.parseLong(context.getParameter(PARAMETER_MSG_COUNT)); i++ ){
+        int count = Integer.parseInt(context.getParameter(PARAMETER_MSG_COUNT));
+        for( int i=0; i<count; i++ ){
             builder.withMessage( msg.getRoutingKey(), msg.getPayload() );
         }
         TMessageSet messageSet = builder.withCompression(compression).build();
 
         // sent request
+        result.setBytes( count * msg.getPayload().length );
+        result.setSampleCount( count );
+        result.sampleStart();
         if( context.getParameter( PARAMETER_CLIENT_TYPE ).equals("sync")){
             // send synchronously
             boolean success = syncClient.send( messageSet );
@@ -142,6 +146,7 @@ public class SuroSampler extends AbstractJavaSamplerClient {
             // send asynchronously
             asyncClient.send( msg );
         }
+        result.sampleEnd();
         return result;
 
 
